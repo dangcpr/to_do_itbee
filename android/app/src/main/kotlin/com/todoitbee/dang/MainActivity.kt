@@ -1,4 +1,4 @@
-package com.example.to_do_itbee
+package com.todoitbee.dang
 
 import io.flutter.embedding.android.FlutterActivity
 
