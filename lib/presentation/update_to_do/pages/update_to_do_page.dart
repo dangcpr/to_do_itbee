@@ -43,6 +43,14 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    titleController.dispose();
+    descriptionController.dispose();
+    dueDateController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<UpdateToDoProvider>(
       create: (_) => UpdateToDoProvider(sl.get<ToDoUsecase>()),
@@ -165,6 +173,7 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
                               dateTime = dateTime.copyWith(
                                 hour: date.hour,
                                 minute: date.minute,
+                                second: 0,
                               );
 
                               dueDateController.text = dateTime.toString();
@@ -255,6 +264,7 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
                                   description: descriptionController.text,
                                   dueDate: dueDateController.text.toDateTime(),
                                   status: toDo.status,
+                                  createdAt: toDo.createdAt,
                                 );
 
                                 await provider.updateToDo(updatedToDo);
@@ -282,7 +292,7 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
                                   );
                                 });
                                 await getToDoListProvider
-                                    .getToDoListWithCurrentStatus();
+                                    .getToDoListStatusSearchCurrent();
                               },
                               child: const Text(
                                 'Update To Do Task',

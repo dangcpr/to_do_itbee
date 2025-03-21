@@ -10,7 +10,11 @@ class ToDoRepoImpl implements ToDoRepo {
   ToDoRepoImpl(this._toDoLocalData);
 
   @override
-  Future<List<ToDoModel>> getToDoList({Status? status}) => _toDoLocalData.getToDoList(status: status);
+  Future<List<ToDoModel>> getToDoList({
+    Status? status,
+    String? searchPattern,
+  }) =>
+      _toDoLocalData.getToDoList(status: status, searchPattern: searchPattern);
 
   @override
   Future<void> createToDo(ToDoEntity toDo) => _toDoLocalData.createToDo(toDo);
@@ -19,7 +23,8 @@ class ToDoRepoImpl implements ToDoRepo {
   Future<void> updateToDo(ToDoEntity toDo) => _toDoLocalData.updateToDo(toDo);
 
   @override
-  Future<void> updateStatus(int idToDo, Status status) => _toDoLocalData.updateStatus(idToDo, status);
+  Future<void> updateStatus(int idToDo, Status status) =>
+      _toDoLocalData.updateStatus(idToDo, status);
 
   @override
   Future<void> deleteToDo(int idToDo) => _toDoLocalData.deleteToDo(idToDo);

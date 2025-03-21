@@ -7,8 +7,8 @@ class ToDoModel extends ToDoEntity {
     required super.description,
     super.status = 0,
     required super.dueDate,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    super.createdAt,
+    super.updatedAt,
   });
 
   factory ToDoModel.fromJson(Map<String, dynamic> json) => ToDoModel(

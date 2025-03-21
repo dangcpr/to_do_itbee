@@ -38,6 +38,14 @@ class _CreateToDoPageState extends State<CreateToDoPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    titleController.dispose();
+    descriptionController.dispose();
+    dueDateController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<CreateToDoProvider>(
       create: (_) => CreateToDoProvider(sl.get<ToDoUsecase>()),
@@ -160,6 +168,7 @@ class _CreateToDoPageState extends State<CreateToDoPage> {
                               dateTime = dateTime.copyWith(
                                 hour: date.hour,
                                 minute: date.minute,
+                                second: 0,
                               );
 
                               dueDateController.text = dateTime.toString();
@@ -275,7 +284,7 @@ class _CreateToDoPageState extends State<CreateToDoPage> {
                                   );
                                 });
                                 await getToDoListProvider
-                                    .getToDoListWithCurrentStatus();
+                                    .getToDoListStatusSearchCurrent();
                               },
                               child: const Text(
                                 'Save',

@@ -13,6 +13,7 @@ class GetToDoListProvider extends ChangeNotifier {
   String _errorMessage = '';
   List<ToDoEntity> _toDoList = [];
   Status? _statusCurrent = Status.all;
+  String? _searchPatternCurrent;
 
   List<ToDoEntity> get toDoList => _toDoList;
 
@@ -21,6 +22,8 @@ class GetToDoListProvider extends ChangeNotifier {
   String get errorMessage => _errorMessage;
 
   Status? get status => _statusCurrent;
+
+  String? get searchPattern => _searchPatternCurrent;
 
   void setLoading(bool value) {
     _isLoading = value;
@@ -37,24 +40,48 @@ class GetToDoListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getToDoList({Status? status}) async {
+  void setSearchPattern(String? value) {
+    _searchPatternCurrent = value;
+    notifyListeners();
+  }
+
+  Future<void> getToDoList({Status? status, String? searchPattern}) async {
     setLoading(true);
     setStatus(status);
+    setSearchPattern(searchPattern);
     try {
-      _toDoList = await _toDoUsecase.getToDoList(status: status);
+      _toDoList = await _toDoUsecase.getToDoList(
+        status: status,
+        searchPattern: searchPattern,
+      );
     } catch (e) {
       setError(e.toString());
     }
     setLoading(false);
   }
 
-  Future<void> getToDoListWithCurrentStatus() async {
+  Future<void> getToDoListStatusSearchCurrent() async {
     setLoading(true);
     try {
-      _toDoList = await _toDoUsecase.getToDoList(status: _statusCurrent);
+      _toDoList = await _toDoUsecase.getToDoList(
+        status: _statusCurrent,
+        searchPattern: _searchPatternCurrent,
+      );
     } catch (e) {
       setError(e.toString());
     }
     setLoading(false);
+  }
+
+  Future<void> getToDoNotLoading() async {
+    try {
+      _toDoList = await _toDoUsecase.getToDoList(
+        status: _statusCurrent,
+        searchPattern: _searchPatternCurrent,
+      );
+      notifyListeners();
+    } catch (e) {
+      setError(e.toString());
+    }
   }
 }

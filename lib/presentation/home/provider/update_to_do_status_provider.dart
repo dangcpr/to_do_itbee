@@ -28,6 +28,8 @@ class UpdateToDoStatusProvider extends ChangeNotifier {
   Future<void> update(int idToDo, Status status) async {
     setLoading(true);
     try {
+      await Future.delayed(const Duration(seconds: 1));
+
       await _toDoUsecase.updateStatus(idToDo, status);
     } catch (e) {
       setError(e.toString());

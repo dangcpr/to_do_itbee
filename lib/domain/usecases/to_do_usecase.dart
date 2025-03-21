@@ -7,13 +7,16 @@ class ToDoUsecase {
 
   ToDoUsecase(this._toDoRepo);
 
-  Future<List<ToDoEntity>> getToDoList({Status? status}) =>
-      _toDoRepo.getToDoList(status: status);
+  Future<List<ToDoEntity>> getToDoList({
+    Status? status,
+    String? searchPattern,
+  }) => _toDoRepo.getToDoList(status: status, searchPattern: searchPattern);
 
   Future<void> createToDo(ToDoEntity toDo) => _toDoRepo.createToDo(toDo);
 
   Future<void> updateToDo(ToDoEntity toDo) => _toDoRepo.updateToDo(toDo);
-  Future<void> updateStatus(int idToDo, Status status) => _toDoRepo.updateStatus(idToDo, status);
+  Future<void> updateStatus(int idToDo, Status status) =>
+      _toDoRepo.updateStatus(idToDo, status);
 
   Future<void> deleteToDo(int idToDo) => _toDoRepo.deleteToDo(idToDo);
 }

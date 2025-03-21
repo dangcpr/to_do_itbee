@@ -13,6 +13,7 @@ import '../../create_to_do/pages/create_to_do_page.dart';
 import '../../update_to_do/pages/update_to_do_page.dart';
 import '../provider/delete_to_do_provider.dart';
 import '../provider/get_to_do_list_provider.dart';
+import '../provider/theme_provider.dart';
 import '../widgets/empty_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,6 +25,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Status status;
+  TextEditingController searchController = TextEditingController();
 
   final getToDoListProvider = sl.get<GetToDoListProvider>();
 
@@ -35,16 +37,59 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<GetToDoListProvider>(
       create: (_) => getToDoListProvider,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Home')),
+        appBar: AppBar(
+          title: const Text('Home'),
+          actions: [
+            Icon(Icons.sunny),
+            Switch(
+              value: context.watch<ThemeProvider>().isDark,
+              onChanged: (value) {
+                context.read<ThemeProvider>().toggleTheme();
+              },
+            ),
+            Icon(Icons.nightlight_round),
+            SizedBox(width: 10),
+          ],
+        ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Search',
+                  prefixIcon: Icon(Icons.search),
+                  suffixIcon: InkWell(
+                    child: Icon(Icons.clear),
+                    onTap: () async {
+                      searchController.clear();
+                      getToDoListProvider.getToDoList(status: status);
+                    },
+                  ),
+                ),
+                onTapOutside:
+                    (event) => FocusManager.instance.primaryFocus?.unfocus(),
+                onChanged: (value) async {
+                  await getToDoListProvider.getToDoList(
+                    status: status,
+                    searchPattern: searchController.text,
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
               Wrap(
                 spacing: 8,
                 children: [
@@ -55,7 +100,9 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         status = Status.all;
                       });
-                      await getToDoListProvider.getToDoList();
+                      await getToDoListProvider.getToDoList(
+                        searchPattern: searchController.text,
+                      );
                     },
                   ),
                   ChoiceChip(
@@ -67,6 +114,7 @@ class _HomePageState extends State<HomePage> {
                       });
                       await getToDoListProvider.getToDoList(
                         status: Status.todo,
+                        searchPattern: searchController.text,
                       );
                     },
                   ),
@@ -79,6 +127,7 @@ class _HomePageState extends State<HomePage> {
                       });
                       await getToDoListProvider.getToDoList(
                         status: Status.done,
+                        searchPattern: searchController.text,
                       );
                     },
                   ),
@@ -93,7 +142,11 @@ class _HomePageState extends State<HomePage> {
                     return Center(child: Text(value.errorMessage));
                   }
                   if (value.toDoList.isEmpty) {
-                    return EmptyWidget(status: status);
+                    return Expanded(
+                      child: SingleChildScrollView(
+                        child: EmptyWidget(status: status),
+                      ),
+                    );
                   }
                   return Expanded(
                     child: ListView.builder(
@@ -147,12 +200,7 @@ class _HomePageState extends State<HomePage> {
                   Status.fromInt(toDo.status).switchStatus(),
                   value,
                 );
-                if (value.errorMessage.isEmpty) {
-                  setState(() {
-                    toDo.status =
-                        Status.fromInt(toDo.status).switchStatus().index;
-                  });
-                }
+                await getToDoListProvider.getToDoNotLoading();
               },
               child:
                   value.isLoading
@@ -198,6 +246,10 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () => onTapDelete(toDo.id),
           ),
+          IconButton(
+            icon: const Icon(Icons.info),
+            onPressed: () => onTapDetail(toDo),
+          ),
         ],
       ),
     );
@@ -237,9 +289,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => Navigator.pop(context),
             ),
             ChangeNotifierProvider<DeleteToDoProvider>(
-              create:
-                  (_) =>
-                      DeleteToDoProvider(sl.get<ToDoUsecase>()..deleteToDo(id)),
+              create: (_) => DeleteToDoProvider(sl.get<ToDoUsecase>()),
               child: Consumer<DeleteToDoProvider>(
                 builder: (_, value, __) {
                   if (value.isLoading) {
@@ -253,16 +303,22 @@ class _HomePageState extends State<HomePage> {
                       AppFunctions.snackMessage(context, value.errorMessage);
                     });
                   }
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    AppFunctions.snackMessage(context, "Task deleted successfully");
-                  });
                   return TextButton(
                     child: const Text('Yes'),
                     onPressed: () async {
                       await value.deleteToDo(id);
+                      if (value.errorMessage.isEmpty && !value.isLoading) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          AppFunctions.snackMessage(
+                            context,
+                            "Task deleted successfully",
+                          );
+                        });
+                      }
                       // ignore: use_build_context_synchronously
                       Navigator.pop(context);
-                      await getToDoListProvider.getToDoListWithCurrentStatus();
+                      await getToDoListProvider
+                          .getToDoListStatusSearchCurrent();
                     },
                   );
                 },
@@ -271,6 +327,75 @@ class _HomePageState extends State<HomePage> {
           ],
         );
       },
+    );
+  }
+
+  void onTapDetail(ToDoEntity toDo) {
+    Widget buildItem({required String text, required Icon icon}) {
+      return Row(
+        children: [
+          icon,
+          const SizedBox(width: 10),
+          Text(text, style: const TextStyle(fontSize: 18)),
+        ],
+      );
+    }
+
+    showModalBottomSheet(
+      context: context,
+      builder:
+          (_) => Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(height: 20),
+                Text(
+                  toDo.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                buildItem(
+                  text: "Description: ${toDo.description}",
+                  icon: const Icon(Icons.info),
+                ),
+                const SizedBox(height: 10),
+                buildItem(
+                  text:
+                      "Due Date: ${toDo.dueDate.formatDate()} at ${toDo.dueDate.formatTime(MediaQuery.of(context).alwaysUse24HourFormat)}",
+                  icon: const Icon(Icons.calendar_month),
+                ),
+                const SizedBox(height: 10),
+                buildItem(
+                  text: "Status: ${Status.fromInt(toDo.status).nameStatus()}",
+                  icon:
+                      Status.fromInt(toDo.status) == Status.done
+                          ? const Icon(Icons.check_circle)
+                          : const Icon(Icons.radio_button_unchecked),
+                ),
+                const SizedBox(height: 10),
+                buildItem(
+                  text:
+                      "Created At: ${toDo.createdAt.formatDate()} at ${toDo.createdAt.formatTime(MediaQuery.of(context).alwaysUse24HourFormat)}",
+                  icon: const Icon(Icons.calendar_month),
+                ),
+                const SizedBox(height: 10),
+                buildItem(
+                  text:
+                      "Updated At: ${toDo.updatedAt.formatDate()} at ${toDo.updatedAt.formatTime(MediaQuery.of(context).alwaysUse24HourFormat)}",
+                  icon: const Icon(Icons.calendar_month),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+              ],
+            ),
+          ),
     );
   }
 }
