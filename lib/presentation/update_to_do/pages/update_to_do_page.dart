@@ -9,12 +9,15 @@ import '../../../domain/entities/to_do_entity.dart';
 import '../../../domain/usecases/to_do_usecase.dart';
 import '../../../service_locator.dart';
 import '../../home/provider/get_to_do_list_provider.dart';
+import '../provider/get_to_do_provider.dart';
 import '../provider/update_to_do_provider.dart';
 
 class UpdateToDoPage extends StatefulWidget {
-  final ToDoEntity toDo;
+  final int? toDoId;
+  final ToDoEntity? toDo;
 
-  const UpdateToDoPage({super.key, required this.toDo});
+  const UpdateToDoPage({super.key, this.toDoId, this.toDo})
+    : assert(toDoId != null || toDo != null);
 
   @override
   State<UpdateToDoPage> createState() => _UpdateToDoPageState();
@@ -31,12 +34,33 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
   Brightness get brightness => MediaQuery.of(context).platformBrightness;
 
   GetToDoListProvider getToDoListProvider = sl.get<GetToDoListProvider>();
+  GetToDoProvider getToDoProvider = GetToDoProvider(sl.get<ToDoUsecase>());
 
-  ToDoEntity get toDo => widget.toDo;
+  ToDoEntity? toDo;
 
   @override
   void initState() {
     super.initState();
+    getToDo();
+
+    if (widget.toDo != null) {
+      toDo = widget.toDo;
+    }
+
+    if (toDo != null) {
+      initController(toDo!);
+    }
+  }
+
+  void getToDo() async {
+    if (widget.toDoId != null) {
+      await getToDoProvider.getToDoById(widget.toDoId!);
+      initController(getToDoProvider.toDo!);
+      toDo = getToDoProvider.toDo;
+    }
+  }
+
+  void initController(ToDoEntity toDo) {
     titleController.text = toDo.title;
     descriptionController.text = toDo.description;
 
@@ -54,264 +78,295 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<UpdateToDoProvider>(
-      create: (_) => UpdateToDoProvider(sl.get<ToDoUsecase>()),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<UpdateToDoProvider>(
+          create: (_) => UpdateToDoProvider(sl.get<ToDoUsecase>()),
+        ),
+        ChangeNotifierProvider<GetToDoProvider>(create: (_) => getToDoProvider),
+      ],
       child: Scaffold(
         appBar: AppBar(),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.task_alt),
-                    title: Text(
-                      titleController.text == ''
-                          ? 'Please fill in the title'
-                          : titleController.text,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                      ),
-                    ),
-                    subtitle: Text(
-                      descriptionController.text == ''
-                          ? 'Please fill in the description'
-                          : descriptionController.text,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                      ),
-                    ),
-                    trailing: InkWell(
-                      child: const Icon(Icons.edit),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder:
-                              (context) => AlertDialog(
-                                title: const Text('Edit Task Title'),
-                                content: buildForm(),
-                                actions: buildActions(),
-                              ),
-                        );
-                      },
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.calendar_today),
-                    title: const Text('Deadline'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 32),
-                    child: ListTile(
-                      leading: const Icon(Icons.calendar_month),
-                      title: const Text('Date'),
-                      trailing: InkWell(
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate:
-                                DateTime.parse(
-                                  dueDateController.text,
-                                ).toLocal(),
-                            firstDate: DateTime.now().toLocal(),
-                            lastDate: DateTime(2100),
-                          );
-                          if (date != null) {
-                            setState(() {
-                              dueDateController.text =
-                                  dueDateController.text
-                                      .toDateTime(isLocalTime: true)
-                                      .copyWith(
-                                        year: date.year,
-                                        month: date.month,
-                                        day: date.day,
-                                      )
-                                      .toString();
-                            });
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            DateTime.parse(dueDateController.text).formatDate(),
-                            style: TextStyle(
-                              color:
-                                  brightness == Brightness.dark
-                                      ? Colors.black
-                                      : Colors.white,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 32),
-                    child: ListTile(
-                      leading: const Icon(Icons.timer),
-                      title: const Text('Time'),
-                      trailing: InkWell(
-                        onTap: () async {
-                          final date = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.fromDateTime(
-                              DateTime.parse(dueDateController.text).toLocal(),
-                            ),
-                            initialEntryMode: TimePickerEntryMode.dial,
-                          );
-                          if (date != null) {
-                            setState(() {
-                              DateTime dateTime = DateTime.parse(
-                                dueDateController.text,
-                              );
-
-                              dateTime = dateTime.copyWith(
-                                hour: date.hour,
-                                minute: date.minute,
-                                second: 0,
-                              );
-
-                              dueDateController.text = dateTime.toString();
-                            });
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            DateTime.parse(dueDateController.text).formatTime(
-                              MediaQuery.of(context).alwaysUse24HourFormat,
-                            ),
-                            style: TextStyle(
-                              color:
-                                  brightness == Brightness.dark
-                                      ? Colors.black
-                                      : Colors.white,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    onTap: () {
-                      setState(() {
-                        toDo.status =
-                            Status.fromInt(toDo.status).switchStatus().index;
-                      });
-                    },
-                    leading:
-                        Status.fromInt(toDo.status) == Status.todo
-                            ? const Icon(
-                              Icons.radio_button_off,
-                              color: Colors.red,
-                            )
-                            : const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                            ),
-                    title: const Text('Status'),
-                    trailing: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade400,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        Status.fromInt(toDo.status).nameStatus(),
-                        style: TextStyle(
-                          color:
-                              brightness == Brightness.dark
-                                  ? Colors.black
-                                  : Colors.white,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Consumer<UpdateToDoProvider>(
-              builder:
-                  (_, provider, __) => Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child:
-                        provider.isLoading
-                            ? AppButtons.circleButton()
-                            : TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.deepPurple,
-                              ),
-                              onPressed: () async {
-                                if (!checkValidation()) {
-                                  return;
-                                }
-
-                                // due date when created is in UTC
-                                final updatedToDo = ToDoEntity(
-                                  id: toDo.id,
-                                  title: titleController.text,
-                                  description: descriptionController.text,
-                                  dueDate: dueDateController.text.toDateTime(),
-                                  status: toDo.status,
-                                  createdAt: toDo.createdAt,
-                                );
-
-                                await provider.updateToDo(updatedToDo);
-
-                                if (provider.errorMessage != '') {
-                                  WidgetsBinding.instance.addPostFrameCallback((
-                                    _,
-                                  ) {
-                                    AppFunctions.snackMessage(
-                                      context,
-                                      provider.errorMessage,
+        body: Consumer<GetToDoProvider>(
+          builder: (_, value, __) {
+            if (value.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SingleChildScrollView(
+                  child:
+                      toDo == null && getToDoProvider.toDo == null
+                          ? Center(child: Text('To Do not found'))
+                          : Column(
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.task_alt),
+                                title: Text(
+                                  titleController.text == ''
+                                      ? 'Please fill in the title'
+                                      : titleController.text,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  descriptionController.text == ''
+                                      ? 'Please fill in the description'
+                                      : descriptionController.text,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                trailing: InkWell(
+                                  child: const Icon(Icons.edit),
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (context) => AlertDialog(
+                                            title: const Text(
+                                              'Edit Task Title',
+                                            ),
+                                            content: buildForm(),
+                                            actions: buildActions(),
+                                          ),
                                     );
-                                  });
-                                  return;
-                                }
-
-                                // ignore: use_build_context_synchronously
-                                Navigator.pop(context);
-                                WidgetsBinding.instance.addPostFrameCallback((
-                                  _,
-                                ) {
-                                  AppFunctions.snackMessage(
-                                    context,
-                                    "Task updated successfully",
-                                  );
-                                });
-                                await getToDoListProvider
-                                    .getToDoListStatusSearchCurrent();
-                              },
-                              child: const Text(
-                                'Update To Do Task',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
+                                  },
                                 ),
                               ),
-                            ),
-                  ),
-            ),
-          ],
+                              ListTile(
+                                leading: const Icon(Icons.calendar_today),
+                                title: const Text('Deadline'),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 32),
+                                child: ListTile(
+                                  leading: const Icon(Icons.calendar_month),
+                                  title: const Text('Date'),
+                                  trailing: InkWell(
+                                    onTap: () async {
+                                      final date = await showDatePicker(
+                                        context: context,
+                                        initialDate:
+                                            DateTime.parse(
+                                              dueDateController.text,
+                                            ).toLocal(),
+                                        firstDate: DateTime.now().toLocal(),
+                                        lastDate: DateTime(2100),
+                                      );
+                                      if (date != null) {
+                                        setState(() {
+                                          dueDateController.text =
+                                              dueDateController.text
+                                                  .toDateTime(isLocalTime: true)
+                                                  .copyWith(
+                                                    year: date.year,
+                                                    month: date.month,
+                                                    day: date.day,
+                                                  )
+                                                  .toString();
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade400,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        DateTime.parse(
+                                          dueDateController.text,
+                                        ).formatDate(),
+                                        style: TextStyle(
+                                          color:
+                                              brightness == Brightness.dark
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 32),
+                                child: ListTile(
+                                  leading: const Icon(Icons.timer),
+                                  title: const Text('Time'),
+                                  trailing: InkWell(
+                                    onTap: () async {
+                                      final date = await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay.fromDateTime(
+                                          DateTime.parse(
+                                            dueDateController.text,
+                                          ).toLocal(),
+                                        ),
+                                        initialEntryMode:
+                                            TimePickerEntryMode.dial,
+                                      );
+                                      if (date != null) {
+                                        setState(() {
+                                          DateTime dateTime = DateTime.parse(
+                                            dueDateController.text,
+                                          );
+
+                                          dateTime = dateTime.copyWith(
+                                            hour: date.hour,
+                                            minute: date.minute,
+                                            second: 0,
+                                          );
+
+                                          dueDateController.text =
+                                              dateTime.toString();
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade400,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        DateTime.parse(
+                                          dueDateController.text,
+                                        ).formatTime(
+                                          MediaQuery.of(
+                                            context,
+                                          ).alwaysUse24HourFormat,
+                                        ),
+                                        style: TextStyle(
+                                          color:
+                                              brightness == Brightness.dark
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                onTap: () {
+                                  setState(() {
+                                    toDo!.status =
+                                        Status.fromInt(
+                                          toDo!.status,
+                                        ).switchStatus().index;
+                                  });
+                                },
+                                leading:
+                                    Status.fromInt(toDo!.status) == Status.todo
+                                        ? const Icon(
+                                          Icons.radio_button_off,
+                                          color: Colors.red,
+                                        )
+                                        : const Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                        ),
+                                title: const Text('Status'),
+                                trailing: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade400,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    Status.fromInt(toDo!.status).nameStatus(),
+                                    style: TextStyle(
+                                      color:
+                                          brightness == Brightness.dark
+                                              ? Colors.black
+                                              : Colors.white,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                ),
+                Consumer<UpdateToDoProvider>(
+                  builder:
+                      (_, provider, __) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child:
+                            provider.isLoading
+                                ? AppButtons.circleButton()
+                                : TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.deepPurple,
+                                  ),
+                                  onPressed: () async {
+                                    if (!checkValidation()) {
+                                      return;
+                                    }
+
+                                    final updatedToDo = ToDoEntity(
+                                      id: toDo!.id,
+                                      title: titleController.text,
+                                      description: descriptionController.text,
+                                      dueDate:
+                                          dueDateController.text.toDateTime(),
+                                      status: toDo!.status,
+                                      createdAt: toDo!.createdAt,
+                                    );
+
+                                    await provider.updateToDo(updatedToDo);
+
+                                    if (provider.errorMessage != '') {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                            AppFunctions.snackMessage(
+                                              context,
+                                              provider.errorMessage,
+                                            );
+                                          });
+                                      return;
+                                    }
+
+                                    // ignore: use_build_context_synchronously
+                                    if (Navigator.canPop(context)) {
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.pop(context);
+                                    }
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                          AppFunctions.snackMessage(
+                                            context,
+                                            "Task updated successfully",
+                                          );
+                                        });
+
+                                    await getToDoListProvider
+                                        .getToDoListStatusSearchCurrent();
+                                  },
+                                  child: const Text(
+                                    'Update To Do Task',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                      ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

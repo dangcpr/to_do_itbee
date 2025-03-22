@@ -1,5 +1,6 @@
 class NameEntity {
   static const String tasks = 'tasks';
+  static const String dueDates = 'due_dates';
 }
 
 class AppConst {

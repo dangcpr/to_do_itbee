@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/router.dart';
 import 'core/theme.dart';
-import 'presentation/home/pages/home_page.dart';
 import 'presentation/home/provider/theme_provider.dart';
 import 'service_locator.dart';
 
@@ -23,12 +23,12 @@ class MyApp extends StatelessWidget {
       create: (_) => ThemeProvider(),
       child: Consumer<ThemeProvider>(
         builder:
-            (_, value, __) => MaterialApp(
+            (_, value, __) => MaterialApp.router(
               title: 'Flutter Demo',
               theme: value.isDark ? AppTheme.dark : AppTheme.light,
               darkTheme: value.isDark ? AppTheme.dark : AppTheme.light,
               debugShowCheckedModeBanner: false,
-              home: const HomePage(),
+              routerConfig: goRouter,
             ),
       ),
     );

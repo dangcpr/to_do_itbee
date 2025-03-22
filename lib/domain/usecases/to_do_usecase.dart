@@ -12,6 +12,8 @@ class ToDoUsecase {
     String? searchPattern,
   }) => _toDoRepo.getToDoList(status: status, searchPattern: searchPattern);
 
+  Future<ToDoEntity> getToDoById(int idToDo) => _toDoRepo.getToDoById(idToDo);
+
   Future<void> createToDo(ToDoEntity toDo) => _toDoRepo.createToDo(toDo);
 
   Future<void> updateToDo(ToDoEntity toDo) => _toDoRepo.updateToDo(toDo);

@@ -236,7 +236,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Navigator.of(context).push(
                 PageTransition(
-                  child: UpdateToDoPage(toDo: toDo),
+                  child: UpdateToDoPage(toDoId: toDo.id),
                   type: PageTransitionType.rightToLeft,
                 ),
               );

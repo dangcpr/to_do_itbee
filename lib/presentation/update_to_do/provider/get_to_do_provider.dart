@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:to_do_itbee/domain/entities/to_do_entity.dart';
 
-import '../../../core/const.dart';
 import '../../../domain/usecases/to_do_usecase.dart';
 
-class UpdateToDoStatusProvider extends ChangeNotifier {
+class GetToDoProvider extends ChangeNotifier {
   final ToDoUsecase _toDoUsecase;
 
-  UpdateToDoStatusProvider(this._toDoUsecase);
+  GetToDoProvider(this._toDoUsecase);
 
   bool _isLoading = false;
-  String _errorMessage = '';
-
   bool get isLoading => _isLoading;
 
+  String _errorMessage = '';
   String get errorMessage => _errorMessage;
+
+  ToDoEntity? _toDo;
+  ToDoEntity? get toDo => _toDo;
 
   void setLoading(bool value) {
     _isLoading = value;
@@ -25,13 +27,15 @@ class UpdateToDoStatusProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> update(int idToDo, Status status) async {
+  Future<void> getToDoById(int idToDo) async {
     setLoading(true);
     try {
-      await _toDoUsecase.updateStatus(idToDo, status);
+      _toDo = await _toDoUsecase.getToDoById(idToDo);
+      notifyListeners();
     } catch (e) {
       setError(e.toString());
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 }

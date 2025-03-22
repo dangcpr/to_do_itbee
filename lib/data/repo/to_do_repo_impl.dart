@@ -17,6 +17,9 @@ class ToDoRepoImpl implements ToDoRepo {
       _toDoLocalData.getToDoList(status: status, searchPattern: searchPattern);
 
   @override
+  Future<ToDoModel> getToDoById(int idToDo) => _toDoLocalData.getToDoById(idToDo);
+
+  @override
   Future<void> createToDo(ToDoEntity toDo) => _toDoLocalData.createToDo(toDo);
 
   @override

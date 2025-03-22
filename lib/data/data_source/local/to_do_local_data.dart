@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../core/const.dart';
 import '../../../core/database.dart';
 import '../../../domain/entities/to_do_entity.dart';
@@ -7,6 +9,7 @@ import '../base_data_source.dart';
 
 abstract interface class ToDoLocalData {
   Future<List<ToDoModel>> getToDoList({Status? status, String? searchPattern});
+  Future<ToDoModel> getToDoById(int idToDo);
   Future<void> createToDo(ToDoEntity toDo);
   Future<void> updateToDo(ToDoEntity toDo);
   Future<void> updateStatus(int idToDo, Status status);
@@ -30,6 +33,7 @@ class ToDoLocalDataImpl extends BaseDataSource implements ToDoLocalData {
         id,
         body: toDo.title,
         scheduledDate: toDo.dueDate,
+        payload: jsonEncode({'type': 'due_dates', 'id': id}),
       );
     } catch (e) {
       rethrow;
@@ -75,6 +79,20 @@ class ToDoLocalDataImpl extends BaseDataSource implements ToDoLocalData {
   }
 
   @override
+  Future<ToDoModel> getToDoById(int idToDo) async {
+    try {
+      final result = await _appDatabase.db.query(
+        NameEntity.tasks,
+        where: 'id = ?',
+        whereArgs: [idToDo],
+      );
+      return ToDoModel.fromJson(result.first);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> updateToDo(ToDoEntity toDo) async {
     try {
       final toDoJson =
@@ -100,6 +118,7 @@ class ToDoLocalDataImpl extends BaseDataSource implements ToDoLocalData {
           toDo.id!,
           body: toDo.title,
           scheduledDate: toDo.dueDate,
+          payload: jsonEncode({'type': 'due_dates', 'id': toDo.id}),
         );
       }
     } catch (e) {
