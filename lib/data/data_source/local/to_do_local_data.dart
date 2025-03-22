@@ -114,7 +114,7 @@ class ToDoLocalDataImpl extends BaseDataSource implements ToDoLocalData {
         NameEntity.tasks,
         {
           'status': status.index,
-          'updated_at': DateTime.now().toIso8601String(),
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
         },
         where: 'id = ?',
         whereArgs: [idToDo],
