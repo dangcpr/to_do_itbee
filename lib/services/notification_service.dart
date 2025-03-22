@@ -49,30 +49,31 @@ class NotificationService {
     int id, {
     String? title = "Due Date",
     String? body,
-    DateTime? scheduledDate,
+    required DateTime scheduledDate,
   }) async {
     try {
-    const AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails(
-          '123',
-          'To Do Dang',
-          channelDescription: 'To Do Dang',
-          importance: Importance.max,
-          priority: Priority.high,
-          ticker: 'ticker',
-        );
-    const NotificationDetails notificationDetails = NotificationDetails(
-      android: androidNotificationDetails,
-    );
+      DateTime scheduledDateUTC = scheduledDate.toUtc();
+      const AndroidNotificationDetails androidNotificationDetails =
+          AndroidNotificationDetails(
+            '123',
+            'To Do Dang',
+            channelDescription: 'To Do Dang',
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: 'ticker',
+          );
+      const NotificationDetails notificationDetails = NotificationDetails(
+        android: androidNotificationDetails,
+      );
 
-    await _flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tz.TZDateTime.from(scheduledDate!, tz.getLocation('Asia/Ho_Chi_Minh')),
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    );
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        tz.TZDateTime.from(scheduledDateUTC, tz.local),
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      );
     } catch (e) {
       rethrow;
     }

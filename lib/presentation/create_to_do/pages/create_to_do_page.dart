@@ -106,7 +106,10 @@ class _CreateToDoPageState extends State<CreateToDoPage> {
                         onTap: () async {
                           final date = await showDatePicker(
                             context: context,
-                            initialDate: DateTime.parse(dueDateController.text),
+                            initialDate:
+                                DateTime.parse(
+                                  dueDateController.text,
+                                ).toLocal(),
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                           );
@@ -114,7 +117,7 @@ class _CreateToDoPageState extends State<CreateToDoPage> {
                             setState(() {
                               dueDateController.text =
                                   dueDateController.text
-                                      .toDateTime()
+                                      .toDateTime(isLocalTime: true)
                                       .copyWith(
                                         year: date.year,
                                         month: date.month,
@@ -252,6 +255,8 @@ class _CreateToDoPageState extends State<CreateToDoPage> {
                                 if (!checkValidation()) {
                                   return;
                                 }
+
+                                // due date when created is in UTC
                                 final toDo = ToDoEntity(
                                   title: titleController.text,
                                   description: descriptionController.text,

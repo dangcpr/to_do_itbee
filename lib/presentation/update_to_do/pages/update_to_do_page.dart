@@ -39,7 +39,9 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
     super.initState();
     titleController.text = toDo.title;
     descriptionController.text = toDo.description;
-    dueDateController.text = toDo.dueDate.toString();
+
+    // convert due date to local time because it is stored in UTC
+    dueDateController.text = toDo.dueDate.toLocal().toString();
   }
 
   @override
@@ -111,15 +113,18 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
                         onTap: () async {
                           final date = await showDatePicker(
                             context: context,
-                            initialDate: DateTime.parse(dueDateController.text),
-                            firstDate: DateTime.now(),
+                            initialDate:
+                                DateTime.parse(
+                                  dueDateController.text,
+                                ).toLocal(),
+                            firstDate: DateTime.now().toLocal(),
                             lastDate: DateTime(2100),
                           );
                           if (date != null) {
                             setState(() {
                               dueDateController.text =
                                   dueDateController.text
-                                      .toDateTime()
+                                      .toDateTime(isLocalTime: true)
                                       .copyWith(
                                         year: date.year,
                                         month: date.month,
@@ -160,7 +165,7 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
                           final date = await showTimePicker(
                             context: context,
                             initialTime: TimeOfDay.fromDateTime(
-                              DateTime.parse(dueDateController.text),
+                              DateTime.parse(dueDateController.text).toLocal(),
                             ),
                             initialEntryMode: TimePickerEntryMode.dial,
                           );
@@ -258,6 +263,8 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
                                 if (!checkValidation()) {
                                   return;
                                 }
+
+                                // due date when created is in UTC
                                 final updatedToDo = ToDoEntity(
                                   id: toDo.id,
                                   title: titleController.text,
