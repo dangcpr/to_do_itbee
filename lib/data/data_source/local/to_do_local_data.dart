@@ -85,7 +85,6 @@ class ToDoLocalDataImpl extends BaseDataSource implements ToDoLocalData {
             status: toDo.status,
             dueDate: toDo.dueDate,
             createdAt: toDo.createdAt,
-            updatedAt: DateTime.now(),
           ).toMap();
 
       await _appDatabase.db.update(
