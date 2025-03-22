@@ -43,6 +43,12 @@ class NotificationService {
         status != PermissionStatus.restricted) {
       await Permission.notification.request();
     }
+
+    final exactTimeStatus = await Permission.scheduleExactAlarm.status;
+    if (exactTimeStatus != PermissionStatus.granted &&
+        exactTimeStatus != PermissionStatus.restricted) {
+      await Permission.scheduleExactAlarm.request();
+    }
   }
 
   Future<void> scheduleNotification(
