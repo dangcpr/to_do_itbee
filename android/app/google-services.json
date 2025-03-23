@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "848417511217",
+    "project_id": "to-do-itbee",
+    "storage_bucket": "to-do-itbee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:848417511217:android:81ba5ad2822208f3fc0210",
+        "android_client_info": {
+          "package_name": "com.todoitbee.dang"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH2cUswfLIyOMB-OGwNUVy2d9_I0zMnHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
