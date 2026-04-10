@@ -56,40 +56,40 @@ class _HomePageState extends State<HomePage> {
             SizedBox(width: 10),
           ],
         ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Image.asset(AppConst.logo, height: 50),
-                    const SizedBox(height: 10),
-                    Text(
-                      AppConst.appName,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              ListTile(
-                title: const Text('Login'),
-                onTap:
-                    () => Navigator.push(
-                      context,
-                      PageTransition(
-                        child: const SignInPage(),
-                        type: PageTransitionType.rightToLeft,
-                      ),
-                    ),
-              ),
-            ],
-          ),
-        ),
+        // drawer: Drawer(
+        //   child: ListView(
+        //     padding: EdgeInsets.zero,
+        //     children: [
+        //       DrawerHeader(
+        //         child: Column(
+        //           crossAxisAlignment: CrossAxisAlignment.start,
+        //           children: [
+        //             Image.asset(AppConst.logo, height: 50),
+        //             const SizedBox(height: 10),
+        //             Text(
+        //               AppConst.appName,
+        //               style: const TextStyle(
+        //                 fontSize: 20,
+        //                 fontWeight: FontWeight.bold,
+        //               ),
+        //             ),
+        //           ],
+        //         ),
+        //       ),
+        //       ListTile(
+        //         title: const Text('Login'),
+        //         onTap:
+        //             () => Navigator.push(
+        //               context,
+        //               PageTransition(
+        //                 child: const SignInPage(),
+        //                 type: PageTransitionType.rightToLeft,
+        //               ),
+        //             ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
