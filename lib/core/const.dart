@@ -4,7 +4,9 @@ class NameEntity {
 }
 
 class AppConst {
+  static const String appName = 'To Do Dang';
   static const String emptyTaskImage = 'assets/images/empty_task.png';
+  static const String logo = 'assets/icons/logo.png';
 }
 
 enum Status {

@@ -62,7 +62,7 @@ class TaskWidget extends StatelessWidget {
               ChangeNotifierProvider<DeleteToDoProvider>(
                 create: (_) => DeleteToDoProvider(sl.get<ToDoUsecase>()),
                 child: Consumer<DeleteToDoProvider>(
-                  builder: (_, value, __) {
+                  builder: (_, value, _) {
                     if (value.isLoading) {
                       return TextButton(
                         onPressed: null,
@@ -187,7 +187,7 @@ class TaskWidget extends StatelessWidget {
       leading: ChangeNotifierProvider<UpdateToDoStatusProvider>(
         create: (_) => UpdateToDoStatusProvider(sl.get<ToDoUsecase>()),
         child: Consumer<UpdateToDoStatusProvider>(
-          builder: (_, value, __) {
+          builder: (_, value, _) {
             return InkWell(
               onTap: () async {
                 await onTapUpdate(

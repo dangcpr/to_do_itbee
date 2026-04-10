@@ -30,14 +30,16 @@ class NotificationService {
           macOS: initializationSettingsDarwin,
           linux: initializationSettingsLinux,
         );
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await _flutterLocalNotificationsPlugin.initialize(
+      settings: initializationSettings,
+    );
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
         >()
         ?.requestPermissions(alert: true, badge: true, sound: true);
     _flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: onTapNotification,
       onDidReceiveBackgroundNotificationResponse: onTapNotificationBack,
     );
@@ -114,11 +116,11 @@ class NotificationService {
       );
 
       await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tz.TZDateTime.from(scheduledDateUTC, tz.local),
-        notificationDetails,
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: tz.TZDateTime.from(scheduledDateUTC, tz.local),
+        notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: payload,
       );
@@ -128,6 +130,6 @@ class NotificationService {
   }
 
   Future<void> cancelNotification(int id) async {
-    await _flutterLocalNotificationsPlugin.cancel(id);
+    await _flutterLocalNotificationsPlugin.cancel(id: id);
   }
 }

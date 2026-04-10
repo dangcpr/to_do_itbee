@@ -5,18 +5,10 @@ import '../../../core/database.dart';
 import '../../../domain/entities/to_do_entity.dart';
 import '../../../services/notification_service.dart';
 import '../../models/to_do_model.dart';
-import '../base_data_source.dart';
+import '../to_do_data_base.dart';
 
-abstract interface class ToDoLocalData {
-  Future<List<ToDoModel>> getToDoList({Status? status, String? searchPattern});
-  Future<ToDoModel> getToDoById(int idToDo);
-  Future<void> createToDo(ToDoEntity toDo);
-  Future<void> updateToDo(ToDoEntity toDo);
-  Future<void> updateStatus(int idToDo, Status status);
-  Future<void> deleteToDo(int idToDo);
-}
 
-class ToDoLocalDataImpl extends BaseDataSource implements ToDoLocalData {
+class ToDoLocalDataImpl implements ToDoData {
   final AppDatabase _appDatabase;
   final NotificationService _notificationService;
 

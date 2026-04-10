@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_itbee/core/extension.dart';
 
-import '../../../core/button.dart';
+import '../../../core/common_widget.dart';
 import '../../../core/const.dart';
 import '../../../core/function.dart';
 import '../../../domain/entities/to_do_entity.dart';
@@ -88,7 +88,7 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
       child: Scaffold(
         appBar: AppBar(),
         body: Consumer<GetToDoProvider>(
-          builder: (_, value, __) {
+          builder: (_, value, _) {
             if (value.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -301,7 +301,7 @@ class _UpdateToDoPageState extends State<UpdateToDoPage> {
                 ),
                 Consumer<UpdateToDoProvider>(
                   builder:
-                      (_, provider, __) => Padding(
+                      (_, provider, _) => Padding(
                         padding: const EdgeInsets.all(8.0),
                         child:
                             provider.isLoading

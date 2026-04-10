@@ -1,11 +1,11 @@
 import '../../core/const.dart';
 import '../../domain/entities/to_do_entity.dart';
 import '../../domain/repo/to_do_repo.dart';
-import '../data_source/local/to_do_local_data.dart';
+import '../data_source/to_do_data_base.dart';
 import '../models/to_do_model.dart';
 
 class ToDoRepoImpl implements ToDoRepo {
-  final ToDoLocalData _toDoLocalData;
+  final ToDoData _toDoLocalData;
 
   ToDoRepoImpl(this._toDoLocalData);
 

@@ -8,7 +8,7 @@ class ToDoUsecase {
   ToDoUsecase(this._toDoRepo);
 
   Future<List<ToDoEntity>> getToDoList({
-    Status? status,
+    Status? status = Status.all,
     String? searchPattern,
   }) => _toDoRepo.getToDoList(status: status, searchPattern: searchPattern);
 

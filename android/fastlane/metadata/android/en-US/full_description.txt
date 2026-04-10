@@ -1,0 +1,1 @@
+Đây là Ứng dụng quản lý task đơn giản, dữ liệu được lưu trong bộ nhớ điện thoại, không cần đăng nhập vẫn có thể quản lý task và thông báo khi đã đến hạn hoàn thành task.

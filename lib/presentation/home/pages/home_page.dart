@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/const.dart';
 import '../../../service_locator.dart';
 import '../../create_to_do/pages/create_to_do_page.dart';
+import '../../sign_in/pages/sign_in_page.dart';
 import '../provider/get_to_do_list_provider.dart';
 import '../provider/theme_provider.dart';
 import '../widgets/empty_widget.dart';
@@ -27,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     status = Status.all;
-    getToDoListProvider.getToDoList();
+    getToDoListProvider.getToDoList(status: status, searchPattern: '');
   }
 
   @override
@@ -54,6 +55,40 @@ class _HomePageState extends State<HomePage> {
             Icon(Icons.nightlight_round),
             SizedBox(width: 10),
           ],
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset(AppConst.logo, height: 50),
+                    const SizedBox(height: 10),
+                    Text(
+                      AppConst.appName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                title: const Text('Login'),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      PageTransition(
+                        child: const SignInPage(),
+                        type: PageTransitionType.rightToLeft,
+                      ),
+                    ),
+              ),
+            ],
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
