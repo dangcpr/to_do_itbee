@@ -11,7 +11,7 @@ class ToDoRepoImpl implements ToDoRepo {
 
   @override
   Future<List<ToDoModel>> getToDoList({
-    Status? status,
+    Status status = Status.all,
     String? searchPattern,
   }) =>
       _toDoLocalData.getToDoList(status: status, searchPattern: searchPattern);

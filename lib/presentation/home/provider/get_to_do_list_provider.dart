@@ -12,7 +12,7 @@ class GetToDoListProvider extends ChangeNotifier {
   bool _isLoading = false;
   String _errorMessage = '';
   List<ToDoEntity> _toDoList = [];
-  Status? _statusCurrent = Status.all;
+  Status _statusCurrent = Status.all;
   String? _searchPatternCurrent;
 
   List<ToDoEntity> get toDoList => _toDoList;
@@ -35,7 +35,7 @@ class GetToDoListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setStatus(Status? value) {
+  void setStatus(Status value) {
     _statusCurrent = value;
     notifyListeners();
   }
@@ -45,7 +45,7 @@ class GetToDoListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getToDoList({Status? status, String? searchPattern}) async {
+  Future<void> getToDoList({Status status = Status.all, String? searchPattern}) async {
     setLoading(true);
     setStatus(status);
     setSearchPattern(searchPattern);

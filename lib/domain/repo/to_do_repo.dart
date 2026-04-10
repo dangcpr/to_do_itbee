@@ -2,7 +2,7 @@ import '../../core/const.dart';
 import '../entities/to_do_entity.dart';
 
 abstract interface class ToDoRepo {
-  Future<List<ToDoEntity>> getToDoList({Status? status, String? searchPattern});
+  Future<List<ToDoEntity>> getToDoList({Status status = Status.all, String? searchPattern});
   Future<ToDoEntity> getToDoById(int idToDo);
   Future<void> createToDo(ToDoEntity toDo);
   Future<void> updateToDo(ToDoEntity toDo);

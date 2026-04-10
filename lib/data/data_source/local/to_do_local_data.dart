@@ -50,19 +50,25 @@ class ToDoLocalDataImpl implements ToDoData {
 
   @override
   Future<List<ToDoModel>> getToDoList({
-    Status? status,
+    Status status = Status.all,
     String? searchPattern,
   }) async {
     try {
+      String whereClause = '(title LIKE ? or description LIKE ?)';
+      List<String> whereArgs = [
+        '%${searchPattern ?? ''}%',
+        '%${searchPattern ?? ''}%',
+      ];
+
+      if (status != Status.all) {
+        whereClause = 'status = ? and $whereClause';
+        whereArgs.insert(0, status.index.toString());
+      }
+
       final result = await _appDatabase.db.query(
         NameEntity.tasks,
-        where:
-            'status = COALESCE(?, status) and (title LIKE ? or description LIKE ?)',
-        whereArgs: [
-          status == Status.all ? null : status?.index,
-          '%${searchPattern ?? ''}%',
-          '%${searchPattern ?? ''}%',
-        ],
+        where: whereClause,
+        whereArgs: whereArgs,
       );
       return result.map((e) => ToDoModel.fromJson(e)).toList();
     } catch (e) {
